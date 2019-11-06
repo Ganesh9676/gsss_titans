@@ -1,0 +1,95 @@
+#define BLYNK_PRINT Serial
+#include <ESP8266_Lib.h>
+#include <BlynkSimpleShieldEsp8266.h>
+#include <SimpleDHT.h>
+#include <LiquidCrystal.h>
+char auth[] = "1275c9434a394510a1dc7502321e862b";
+char ssid[] = "a1";
+char pass[] = "ganesh1234";
+int pinDHT11 = 22;
+int airQuality = A0;
+int readsmoke = A1;
+int temp1 = 23;
+int temp2 = 28;
+int hum = 70;
+int airq = 400;
+int smoke = 300;
+int smokeAlarm = 7;
+int heater=5;
+int cooler=4;
+int fan=6;
+int contrast=75;
+int automode =3;
+
+LiquidCrystal lcd(23, 24, 25, 26, 27, 28);  
+//define LCD pins (RS, E, D4, D5, D6, D7)
+SimpleDHT11 dht11(pinDHT11);
+#define ESP8266_BAUD 115200
+ESP8266 wifi(&Serial);
+BlynkTimer timer;
+void sendSensor()
+{
+  byte temperature = 0;
+  byte humidity = 0;
+  int airq = analogRead(airQuality);
+  int smokes = analogRead(readsmoke);
+  int err = SimpleDHTErrSuccess;
+  if ((err = dht11.read(&temperature, &humidity, NULL)) != SimpleDHTErrSuccess) {
+    return;
+  }   
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("tem:");
+  lcd.print((int)temperature);
+  lcd.print("*C");
+  lcd.setCursor(9,0);
+  lcd.print("Hum:");
+  lcd.print((int)humidity);
+  lcd.print("%");
+  lcd.setCursor(0,1);
+  lcd.print("status:online");
+    Blynk.virtualWrite(V1, humidity);
+    Blynk.virtualWrite(V0, temperature);
+    Blynk.virtualWrite(V2,airq);
+    Blynk.virtualWrite(V3, smokes);
+    }
+void setup() {
+  lcd.begin(16,2);
+  pinMode(A0,INPUT);
+  pinMode(A1,INPUT); 
+  pinMode(4,OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(6,OUTPUT);
+  pinMode(7,OUTPUT);
+  pinMode(3,INPUT);
+  digitalWrite(9,HIGH);
+  digitalWrite(cooler,LOW);
+  digitalWrite(heater,LOW);
+  digitalWrite(fan,LOW);
+  digitalWrite(smokeAlarm,LOW);
+ analogWrite(A2,contrast);
+ lcd.print("please wait ..");
+ delay(2000);
+ Serial.begin(9600);
+ // Set ESP8266 baud rate
+ Serial.begin(ESP8266_BAUD);
+ lcd.clear();
+ lcd.setCursor(0,0);
+ lcd.print("connecting to");
+ lcd.setCursor(0,1);
+ lcd.print((char)ssid[0]);
+ Blynk.begin(auth, wifi, ssid, pass);
+ lcd.clear();
+ Blynk.notify("your Device is now online");
+ lcd.print("connected to ");
+ lcd.println((char)ssid[0]);
+ delay(2000);
+ 
+ timer.setInterval(700L,sendSensor);
+ lcd.clear();
+
+}
+void loop() { 
+Blynk.run();
+ timer.run();
+}
