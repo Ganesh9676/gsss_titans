@@ -1,6 +1,7 @@
 # gsss_titans
 move contens inside libraries folder to thispc\documents\arduino-windows\libraries 
 paste the given link below  in Arduino IDE file>preferences>custom boards manager URL
+download blynk libraries from blynk.cc and extract into libraries.
 
 https://dl.espressif.com/dl/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
 
